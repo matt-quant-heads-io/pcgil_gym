@@ -20,12 +20,13 @@ df.plot(kind='line',x='success_fo',y='ticks_fo',color='red', ax=ax)
 df.plot(kind='line',x='success_so',y='ticks_so',color='blue', ax=ax)
 df.plot(kind='line',x='success_offline',y='ticks_offline',color='green', ax=ax)
 
-plt.savefig('success_trainingtime.png') # (2)
+plt.savefig('success_trainingtime.png')
 plt.close()
 
 # generate avg % tile-change number (2)
-# generate matplotlib per agent[zelda-wide-v0, zelda-narrow-v0...], x=change_percentage,y=avg%tile_change (2)
+# generate matplotlib per agent[zelda-wide-v0, zelda-narrow-v0...], x=change_percentage,y=avg%tile_change (3)
 import numpy as np
+agents = ["zelda-wide-v0", "zelda-narrow-v0", "zelda-turtle-v0"]
 ys = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 for agent in agents: 
   base = tracking[agent]
@@ -37,5 +38,5 @@ for agent in agents:
 plt.title("change % vs # tile change actions")
 plt.xlabel("change_percentage")
 plt.ylabel("tile change actions")
-plt.savefig('tileactions_vs_changepercentage.png') # (2)
+plt.savefig('tileactions_vs_changepercentage.png') # (3)
 plt.close()
