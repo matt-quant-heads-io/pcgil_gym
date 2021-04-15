@@ -69,7 +69,48 @@ def generate_play_trace_wide(map, prob, rep, actions_list, render=False):
 
 
 def generate_play_trace_narrow(map, prob, rep, actions_list, render=False):
-    pass
+    play_trace = []
+    old_map = map.copy()
+    tile_coors = []
+    #creates an array of tile coordinates, shuffles them to the order in which they are to be
+    # modified, can change to work from left to right if necessary, following tree search paper
+    # where these concepts were first introduced
+    for row in map:
+        for col in map:
+            tile_coors.append((row, col))
+    tile_coors = np.array(tile_coors)
+    tile_coors = np.flip(tile_coors)
+    #random.shuffle(tile_coors)
+
+    #change from left-right, to bottom right-top left
+    for num_tc_action in range(len(tile_coors)):
+        new_map = old_map.copy()
+        transition_info_at_step = [None, old_map, None, None]
+        actions = actions_list.copy()
+        row_idx, col_idx = tile_coors[num_tc_action][0], tile_coors[num_tc_action][1]
+        new_map[row_idx] = old_map[row_idx].copy()
+        transition_info_at_step[2] = (row_idx, col_idx)
+        # 1) get the tile type at row_i, col_i and remove it from the list
+        old_tile_type = map[row_idx][col_idx]
+        # 2) remove the tile from the actions_list
+        #actions.remove(old_tile_type) commented out because some will not change
+        # 3) select an action from the list
+        new_tile_type = random.choice(actions)
+        # 4) update the map with the new tile type
+        new_map[row_idx][col_idx] = new_tile_type
+        transition_info_at_step[0] = new_map
+        play_trace.append(transition_info_at_step)
+
+        old_map = new_map
+
+        # Render
+        if render:
+            map_img = render_map(new_map, prob, rep)
+            ren = rendering.SimpleImageViewer()
+            ren.imshow(map_img)
+            input(f'')
+            ren.close()
+    return play_trace
 
 
 def generate_play_trace_turtle(map, prob, rep, actions_list, render=False):
