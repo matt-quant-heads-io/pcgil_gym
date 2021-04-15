@@ -89,7 +89,7 @@ def get_numpy_dict_from_play_trace_wide(play_trace, prob, rep):
         ob = int_map_to_onehot(ob)
         obs.append(ob)
         rep.set_map(pt_tuple[0])
-        action = convert_action_to_npz_format(pt_tuple[2][0], pt_tuple[2][1], pt_tuple[-1])
+        action = convert_action_to_npz_format(pt_tuple[2][0], pt_tuple[2][1], pt_tuple[-1], ob)
         actions.append(np.array([action]))
         reward = prob.get_reward(prob.get_stats(pt_tuple[0]), prob.get_stats(pt_tuple[1]))
         rewards.append(np.array(reward))
@@ -125,16 +125,18 @@ def main():
 
     if level == -1:
         FILENAME_TEMPLATE = "zelda_lvl{}.txt"
-
         if rep_as_str == 'wide':
+            complete_numpy_dict = {'actions': [], 'obs': [], 'rewards': [],
+                                   'episode_returns': [], 'episode_starts': []}
             for idx in range(50):
-                print('herre again!!')
                 filename = FILENAME_TEMPLATE.format(idx)
                 for idx_j in range(num_pods):
                     map = to_2d_array_level(filename)
                     play_trace = generate_play_trace_wide(map, prob, rep, actions_list, render=render)
                     numpy_dict = get_numpy_dict_from_play_trace_wide(play_trace, prob, rep)
-                    np.savez(f'expert_trajectories/wide/expert_zelda_{rep_as_str}_{idx}_{idx_j}', **numpy_dict)
+                    for k, v in numpy_dict.items():
+                        complete_numpy_dict[k].extend(numpy_dict[k])
+            np.savez(f'expert_trajectories/wide/expert_zelda_complete', **complete_numpy_dict)
         elif rep_as_str == 'narrow':
             for idx in range(50):
                 filename = FILENAME_TEMPLATE.format(idx)
@@ -160,7 +162,7 @@ def main():
                 map = to_2d_array_level(filename)
                 play_trace = generate_play_trace_wide(map, prob, rep, actions_list, render=render)
                 numpy_dict = get_numpy_dict_from_play_trace_wide(play_trace, prob, rep)
-                np.savez(f'expert_trajectories/wide/expert_zelda_{rep_as_str}_{idx}_{idx}', **numpy_dict)
+                np.savez(f'expert_trajectories/wide/expert_zelda_{rep_as_str}_{level}_{idx}', **numpy_dict)
         elif rep_as_str == 'narrow':
             for idx in range(num_pods):
                 map = to_2d_array_level(filename)

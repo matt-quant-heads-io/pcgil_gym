@@ -21,14 +21,26 @@ CHAR_MAP = {"door": 'a',
             "empty": 'h'}
 
 # TODO: This is a placeholder mapping (confirm correct mapping with Ahmed)
-ONEHOT_MAP = {"door": [1, 0, 0, 0, 0, 0, 0, 0],
-              "key": [0, 1, 0, 0, 0, 0, 0, 0],
+ONEHOT_MAP = {"empty": [1, 0, 0, 0, 0, 0, 0, 0],
+              "solid": [0, 1, 0, 0, 0, 0, 0, 0],
               "player": [0, 0, 1, 0, 0, 0, 0, 0],
-              "bat": [0, 0, 0, 1, 0, 0, 0, 0],
-              "spider": [0, 0, 0, 0, 1, 0, 0, 0],
-              "scorpion": [0, 0, 0, 0, 0, 1, 0, 0],
-              "solid": [0, 0, 0, 0, 0, 0, 1, 0],
-              "empty": [0, 0, 0, 0, 0, 0, 0, 1]}
+              "key": [0, 0, 0, 1, 0, 0, 0, 0],
+              "door": [0, 0, 0, 0, 1, 0, 0, 0],
+              "bat": [0, 0, 0, 0, 0, 1, 0, 0],
+              "scorpion": [0, 0, 0, 0, 0, 0, 1, 0],
+              "spider": [0, 0, 0, 0, 0, 0, 0, 1]}
+
+# TODO: This is a placeholder mapping (confirm correct mapping with Ahmed)
+INT_MAP = {
+    "empty": 0,
+    "solid": 1,
+    "player": 2,
+    "key": 3,
+    "door": 4,
+    "bat": 5,
+    "scorpion": 6,
+    "spider": 7
+}
 
 TILES_MAP = {"g": "door",
              "+": "key",
@@ -38,18 +50,6 @@ TILES_MAP = {"g": "door",
              "3": "scorpion",
              "w": "solid",
              ".": "empty"}
-
-# TODO: This is a placeholder mapping (confirm correct mapping with Ahmed)
-INT_MAP = {
-    "empty": 0,
-    "solid": 1,
-    "door": 2,
-    "key": 3,
-    "player": 4,
-    "bat": 5,
-    "spider": 6,
-    "scorpion": 7
-}
 
 
 def hamming_distance_pct(map1, map2):
@@ -67,12 +67,34 @@ def hamming_distance_pct(map1, map2):
         else:
             num_char_diffs += 1
 
-    return num_char_diffs / len(map1_str)
+    return round(num_char_diffs / len(map1_str), 6)
 
 
-def convert_action_to_npz_format(x , y, action):
-    idx = (x * 11 * 8 + y * 8) + INT_MAP[action]
-    return idx
+def str_hamming_distance_pct(map1_str, map2_str):
+    num_char_diffs = 0
+    for idx, char in enumerate(map1_str):
+        if char == map2_str[idx]:
+            continue
+        else:
+            num_char_diffs += 1
+
+    return round(num_char_diffs / len(map1_str), 6)
+
+
+def string_from_2d_arr(map1):
+    map1_str = ''
+    for row_i in range(len(map1)):
+        for col_i in range(len(map1[0])):
+            map1_str += CHAR_MAP[map1[row_i][col_i]]
+    return map1_str
+
+
+# TODO: This is what we have to check!!!
+def convert_action_to_npz_format(x, y, action, ob):
+    temp_mat = np.zeros((ob.shape[0], ob.shape[1], ob.shape[2]))
+    temp_mat[x][y][INT_MAP[action]] = 1
+    new_temp_mat = np.ravel(temp_mat)
+    return list(new_temp_mat).index(1)
 
 
 def str_map_to_onehot(str_map):
