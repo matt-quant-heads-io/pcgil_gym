@@ -51,6 +51,14 @@ TILES_MAP = {"g": "door",
              "w": "solid",
              ".": "empty"}
 
+def int_arr_from_str_arr(map):
+    int_map = []
+    for row_idx in range(len(map)):
+        new_row = []
+        for col_idx in range(len(map[0])):
+            new_row.append(INT_MAP[map[row_idx][col_idx]])
+        int_map.append(new_row)
+    return int_map
 
 def hamming_distance_pct(map1, map2):
     map1_str = ''
@@ -108,12 +116,14 @@ def str_map_to_onehot(str_map):
 
 
 def int_map_to_onehot(int_map):
-    new_map = int_map.copy()
+    new_map = []
     for row_i in range(len(int_map)):
+        new_row = []
         for col_i in range(len(int_map[0])):
             new_tile = [0]*8
             new_tile[int_map[row_i][col_i]] = 1
-            new_map[row_i][col_i] = np.array(new_tile)
+            new_row.append(np.array(new_tile))
+        new_map.append(np.array(new_row))
     return np.array(new_map)
 
 
