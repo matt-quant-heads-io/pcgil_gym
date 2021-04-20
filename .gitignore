@@ -1,3 +1,5 @@
 .ipynb_checkpoints/*
 __pycache__/*
 update2.ipynb
+expert_trajectories/*
+runs/*

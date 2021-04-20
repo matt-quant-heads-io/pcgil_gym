@@ -60,9 +60,9 @@ if __name__ == '__main__':
     for change_percent in change_percents:
         kwargs = {
             'change_percentage': change_percent,
-            'trials': 1000,
+            'trials': 1,
             'verbose': True,
-            'render': False
+            'render': True
         }
         pct_succ_levels = infer(game, representation, model_path, **kwargs)
         vals_dict['succ_lvls_pct'].append(pct_succ_levels)

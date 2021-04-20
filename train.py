@@ -72,7 +72,7 @@ def main(exp_traj_fn, rep_as_str, from_scratch):
                             batch_size=15)
     start_time = time.process_time()
     model.set_env(env)
-    model.pretrain(dataset, n_epochs=100)
+    model.pretrain(dataset, n_epochs=15)
     end_time = time.process_time()
     print(f"training took {end_time - start_time} seconds")
     model.save(f'models/{rep_as_str}/zelda_{rep_as_str}')

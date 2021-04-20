@@ -117,6 +117,23 @@ def generate_play_trace_turtle(map, prob, rep, actions_list, render=False):
     pass
 
 
+def reward_and_action_wide(location, correct_action, map, tiles):
+    # First randomly create new x,y coordinate and add it to the list [(x,y of action), (x,y of random)]
+    x_rand, y_rand = random.randint(0, len(map) - 1), random.randint(0, len(map[0]) - 1)
+    # randomly select (x,y) from list, and if it's the (x,y of action) reward with +1 else -1
+    select_location = random.choice([location, (x_rand, y_rand)])
+    reward = 1 if select_location == location else -1
+    # randomly select action and add to the list [original action, random action]
+    action_rand = random.choice(tiles)
+    selected_action = random.choice([correct_action, action_rand])
+    # randomly sleect action from list, and if its the original action then reward with +1 else -1
+    if correct_action == selected_action:
+        reward += 1
+    else:
+        reward -= 1
+    return reward, selected_action, select_location
+
+
 def get_numpy_dict_from_play_trace_wide(play_trace, pcgrl_env):
     actions = []
     obs = []
@@ -127,20 +144,21 @@ def get_numpy_dict_from_play_trace_wide(play_trace, pcgrl_env):
     episode_return = 0.0
     pcgrl_env.reset()
     pcgrl_env._rep.set_map(np.array(int_arr_from_str_arr(play_trace[0][1])))
+    # TODO: Confirm that this action should be here (i.e. for the first state transition prior to the loop)
     actions.append([convert_action_to_npz_format(play_trace[0][2][0], play_trace[0][2][1], play_trace[0][-1],
                                           int_map_to_onehot(pcgrl_env._rep.get_observation()['map']))])
     rewards.append([0.0])
     obs.append(int_map_to_onehot(pcgrl_env._rep.get_observation()['map']))
     for tuple_idx, pt_tuple in enumerate(play_trace):
         episode_starts.append(np.array([False]))
-        # episode_starts.append(np.array([False]))
-        observation, reward, done, info = pcgrl_env.step([pt_tuple[2][1], pt_tuple[2][0], pcgrl_env._prob.get_tile_types().index(pt_tuple[-1])])
+        reward, action, location = reward_and_action_wide(pt_tuple[2], pt_tuple[-1], pt_tuple[1], pcgrl_env._prob.get_tile_types())
+        observation, _, done, info = pcgrl_env.step([location[1], location[0], pcgrl_env._prob.get_tile_types().index(action)])
         ob = observation['map']
         ob_oh = int_map_to_onehot(ob)
         obs.append(ob_oh)
-        action = convert_action_to_npz_format(pt_tuple[2][0], pt_tuple[2][1], pt_tuple[-1], int_map_to_onehot(observation['map']))
+        action = convert_action_to_npz_format(location[0], location[1], action, int_map_to_onehot(observation['map']))
         actions.append([action])
-        reward = pcgrl_env._prob.get_reward(pcgrl_env._prob.get_stats(pt_tuple[0]), pcgrl_env._prob.get_stats(pt_tuple[1]))
+        # reward = pcgrl_env._prob.get_reward(pcgrl_env._prob.get_stats(pt_tuple[0]), pcgrl_env._prob.get_stats(pt_tuple[1]))
         rewards.append([reward])
         episode_return += reward
     episode_returns.append(episode_return)
@@ -156,13 +174,13 @@ def get_numpy_dict_from_play_trace_wide(play_trace, pcgrl_env):
     # print(f"len of episode_returns: {len(episode_returns)}")
     # print(f"len of episode_starts: {len(episode_starts)}")
 
-    # print({
-    #     'actions': actions,
-    #     'obs': obs,
-    #     'rewards': rewards,
-    #     'episode_returns': episode_returns,
-    #     'episode_starts': episode_starts
-    # })
+    print({
+        'actions': actions,
+        'obs': obs,
+        'rewards': rewards,
+        'episode_returns': episode_returns,
+        'episode_starts': episode_starts
+    })
 
     return {
         'actions': actions,
