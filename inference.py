@@ -60,7 +60,7 @@ if __name__ == '__main__':
     for change_percent in change_percents:
         kwargs = {
             'change_percentage': change_percent,
-            'trials': 1,
+            'trials': 1000,
             'verbose': True,
             'render': True
         }
