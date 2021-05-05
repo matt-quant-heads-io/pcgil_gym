@@ -312,16 +312,18 @@ def main():
                 for idx_j in range(num_pods):
                     map = to_2d_array_level(filename)
                     play_trace = generate_play_trace_narrow(map, prob, rep, actions_list, render=render)
-                    numpy_dict = get_numpy_dict_from_play_trace_wide(play_trace, prob, rep)
-                    np.savez(f'expert_trajectories/wide/expert_zelda_{rep_as_str}_{idx}_{idx_j}', **numpy_dict)
+                    numpy_dict = get_numpy_dict_from_play_trace_narrow(play_trace, prob, rep)
+                    # np.savez(f'expert_trajectories/wide/expert_zelda_complete', **complete_numpy_dict)
+                    np.savez(f'expert_trajectories/narrow/expert_zelda_{rep_as_str}_{idx}_{idx_j}', **numpy_dict)
         elif rep_as_str == 'turtle':
             for idx in range(50):
                 filename = FILENAME_TEMPLATE.format(idx)
                 for idx_j in range(num_pods):
                     map = to_2d_array_level(filename)
                     play_trace = generate_play_trace_turtle(map, prob, rep, actions_list, render=render)
-                    numpy_dict = get_numpy_dict_from_play_trace_wide(play_trace, prob, rep)
-                    np.savez(f'expert_trajectories/wide/expert_zelda_{rep_as_str}_{idx}_{idx_j}', **numpy_dict)
+                    numpy_dict = get_numpy_dict_from_play_trace_turtle(play_trace, prob, rep)
+                    # np.savez(f'expert_trajectories/wide/expert_zelda_complete', **complete_numpy_dict)
+                    np.savez(f'expert_trajectories/turtle/expert_zelda_{rep_as_str}_{idx}_{idx_j}', **numpy_dict)
         else:
             sys.exit(1)
     else:
@@ -337,14 +339,15 @@ def main():
                 map = to_2d_array_level(filename)
                 play_trace = generate_play_trace_narrow(map, prob, rep, actions_list, render=render)
                 numpy_dict = get_numpy_dict_from_play_trace_wide(play_trace, prob, rep)
-                np.savez(f'expert_trajectories/wide/expert_zelda_{rep_as_str}_{idx}_{idx}', **numpy_dict)
+                # np.savez(f'expert_trajectories/wide/expert_zelda_{rep_as_str}_{idx}_{idx}', **numpy_dict)
+                np.savez(f'expert_trajectories/narrow/expert_zelda_{rep_as_str}_{idx}_{idx}', **numpy_dict)
         elif rep_as_str == 'turtle':
             for idx in range(num_pods):
                 map = to_2d_array_level(filename)
                 play_trace = generate_play_trace_turtle(map, prob, rep, actions_list, render=render)
                 numpy_dict = get_numpy_dict_from_play_trace_wide(play_trace, prob, rep)
-                np.savez(f'expert_trajectories/wide/expert_zelda_{rep_as_str}_{idx}_{idx}', **numpy_dict)
-
+                # np.savez(f'expert_trajectories/wide/expert_zelda_{rep_as_str}_{idx}_{idx}', **numpy_dict)
+                np.savez(f'expert_trajectories/turtle/expert_zelda_{rep_as_str}_{idx}_{idx}', **numpy_dict)
 
 if __name__ == '__main__':
     main()
