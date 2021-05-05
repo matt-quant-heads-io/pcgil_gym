@@ -99,7 +99,8 @@ def generate_play_trace_narrow(map, prob, rep, actions_list, render=False):
         # 4) update the map with the new tile type
         new_map[row_idx][col_idx] = new_tile_type
         transition_info_at_step[0] = new_map
-        play_trace.append(transition_info_at_step)
+        #play_trace.append(transition_info_at_step)
+        play_trace.insert(0, transition_info_at_step)
 
         old_map = new_map
 
@@ -114,7 +115,68 @@ def generate_play_trace_narrow(map, prob, rep, actions_list, render=False):
 
 
 def generate_play_trace_turtle(map, prob, rep, actions_list, render=False):
-    pass
+    play_trace = []
+    old_map = map.copy()
+    tile_coors = []
+    for row in map:
+        for col in map:
+            tile_coors.append((row, col))
+    tile_coors = np.array(tile_coors)
+    # find the number of rows and columns to properly allow the tile to not go out of boundaries
+    num_rows = tile_coors[len(tile_coors)-1][0]
+    num_cols = tile_coors[len(tile_coors)-1][1]
+    random.shuffle(tile_coors)
+    starting_tile = tile_coors[8]
+    row_idx, col_idx = starting_tile[0], starting_tile[1]
+    moves = [0,1,2,3]
+
+    for num_tc_action in range(20):
+        new_map = old_map.copy()
+        transition_info_at_step = [None, old_map, None, None]
+        actions = actions_list.copy()
+        new_map[row_idx] = old_map[row_idx].copy()
+        transition_info_at_step[2] = (row_idx, col_idx)
+        # 1) get the tile type at row_i, col_i and remove it from the list
+        old_tile_type = map[row_idx][col_idx]
+        transition_info_at_step[3] = old_tile_type
+        # 2) remove the tile from the actions_list
+        actions.remove(old_tile_type)
+        # 3) select an action from the list
+        new_tile_type = random.choice(actions)
+
+
+        change_dir = False
+        while(change_dir == False): # while loop implemented so there can be a turtle move in place
+            next_move = random.randint(0, 3)
+            if(next_move == 0 and row_idx != 0): # move left
+                row_idx -= 1
+                change_dir = True
+            elif(next_move == 1 and row_idx != num_cols): # move right
+                row_idx += 1
+                change_dir = True
+            elif(next_move == 2 and col_idx != 0): # move up
+                col_idx -= 1
+                change_dir = True
+            elif(next_move == 3 and col_idx != num_rows): # move down
+                col_idx += 1
+                change_dir = True
+
+        # 4) update the map with the new tile type
+        new_map[row_idx][col_idx] = new_tile_type
+        transition_info_at_step[0] = new_map
+        #play_trace.append(transition_info_at_step)
+        play_trace.insert(0, transition_info_at_step)
+
+        old_map = new_map
+
+        # Render
+        if render:
+            map_img = render_map(new_map, prob, rep)
+            ren = rendering.SimpleImageViewer()
+            ren.imshow(map_img)
+            input(f'')
+            ren.close()
+    return play_trace
 
 
 def get_numpy_dict_from_play_trace_wide(play_trace, prob, rep):
