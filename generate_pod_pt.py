@@ -212,6 +212,72 @@ def get_numpy_dict_from_play_trace_wide(play_trace, prob, rep):
         'episode_starts': episode_starts
     }
 
+def get_numpy_dict_from_play_trace_narrow(play_trace, prob, rep):
+    actions = []
+    obs = []
+    rewards = []
+    episode_returns = []
+    episode_starts = [True] + np.array([False]) * (len(play_trace) - 1)
+    episode_return = 0.0
+    rep.set_map(play_trace[0][1])
+    for tuple_idx, pt_tuple in enumerate(play_trace):
+        ob = convert_ob_to_int_arr(rep.get_observation())
+        ob = int_map_to_onehot(ob)
+        obs.append(ob)
+        rep.set_map(pt_tuple[0])
+        action = convert_action_to_npz_format(pt_tuple[2][0], pt_tuple[2][1], pt_tuple[-1], ob)
+        actions.append(np.array([action]))
+        reward = prob.get_reward(prob.get_stats(pt_tuple[0]), prob.get_stats(pt_tuple[1]))
+        rewards.append(np.array(reward))
+        episode_return += reward
+    episode_returns.append(episode_return)
+    actions = np.array(actions)
+    obs = np.array(obs)
+    rewards = np.array(rewards)
+    episode_returns = np.array(episode_returns)
+    episode_starts = np.array(episode_starts)
+
+    return {
+        'actions':  actions,
+        'obs': obs,
+        'rewards': rewards,
+        'episode_returns': episode_returns,
+        'episode_starts': episode_starts
+    }
+
+def get_numpy_dict_from_play_trace_turtle(play_trace, prob, rep):
+    actions = []
+    obs = []
+    rewards = []
+    episode_returns = []
+    episode_starts = [True] + np.array([False]) * (len(play_trace) - 1)
+    episode_return = 0.0
+    rep.set_map(play_trace[0][1])
+    for tuple_idx, pt_tuple in enumerate(play_trace):
+        ob = convert_ob_to_int_arr(rep.get_observation())
+        ob = int_map_to_onehot(ob)
+        obs.append(ob)
+        rep.set_map(pt_tuple[0])
+        action = convert_action_to_npz_format(pt_tuple[2][0], pt_tuple[2][1], pt_tuple[-1], ob)
+        actions.append(np.array([action]))
+        reward = prob.get_reward(prob.get_stats(pt_tuple[0]), prob.get_stats(pt_tuple[1]))
+        rewards.append(np.array(reward))
+        episode_return += reward
+    episode_returns.append(episode_return)
+    actions = np.array(actions)
+    obs = np.array(obs)
+    rewards = np.array(rewards)
+    episode_returns = np.array(episode_returns)
+    episode_starts = np.array(episode_starts)
+
+    return {
+        'actions':  actions,
+        'obs': obs,
+        'rewards': rewards,
+        'episode_returns': episode_returns,
+        'episode_starts': episode_starts
+    }
+
 
 def main():
     args = parser.parse_args()
