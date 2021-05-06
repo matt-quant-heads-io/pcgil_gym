@@ -75,15 +75,16 @@ def generate_play_trace_narrow(map, prob, rep, actions_list, render=False):
     #creates an array of tile coordinates, shuffles them to the order in which they are to be
     # modified, can change to work from left to right if necessary, following tree search paper
     # where these concepts were first introduced
-    for row in map:
-        for col in map:
-            tile_coors.append((row, col))
+    for row in range(len(map)):
+        for col in range(len(map[row])):
+            tile_coors.append((col, row)) #once flipped it swaps coordinates too
     tile_coors = np.array(tile_coors)
     tile_coors = np.flip(tile_coors)
     #random.shuffle(tile_coors)
 
     #change from left-right, to bottom right-top left
     for num_tc_action in range(len(tile_coors)):
+        #print(len(tile_coors))
         new_map = old_map.copy()
         transition_info_at_step = [None, old_map, None, None]
         actions = actions_list.copy()
@@ -118,19 +119,18 @@ def generate_play_trace_turtle(map, prob, rep, actions_list, render=False):
     play_trace = []
     old_map = map.copy()
     tile_coors = []
-    for row in map:
-        for col in map:
+    for row in range(len(map)):
+        for col in range(len(map[row])):
             tile_coors.append((row, col))
     tile_coors = np.array(tile_coors)
     # find the number of rows and columns to properly allow the tile to not go out of boundaries
     num_rows = tile_coors[len(tile_coors)-1][0]
     num_cols = tile_coors[len(tile_coors)-1][1]
-    random.shuffle(tile_coors)
-    starting_tile = tile_coors[8]
-    row_idx, col_idx = starting_tile[0], starting_tile[1]
+    row_idx, col_idx = random.randint(0, num_rows), random.randint(0, num_cols) #select a random starting point
     moves = [0,1,2,3]
 
-    for num_tc_action in range(20):
+    for num_tc_action in range(20): #can be changed if we want the amount of changed tiles to increase/decrease
+        print(row_idx, col_idx)
         new_map = old_map.copy()
         transition_info_at_step = [None, old_map, None, None]
         actions = actions_list.copy()
@@ -143,7 +143,6 @@ def generate_play_trace_turtle(map, prob, rep, actions_list, render=False):
         actions.remove(old_tile_type)
         # 3) select an action from the list
         new_tile_type = random.choice(actions)
-
 
         change_dir = False
         while(change_dir == False): # while loop implemented so there can be a turtle move in place
