@@ -93,6 +93,7 @@ def generate_play_trace_narrow(map, prob, rep, actions_list, render=False):
         transition_info_at_step[2] = (row_idx, col_idx)
         # 1) get the tile type at row_i, col_i and remove it from the list
         old_tile_type = map[row_idx][col_idx]
+        transition_info_at_step[3] = old_tile_type
         # 2) remove the tile from the actions_list
         #actions.remove(old_tile_type) commented out because some will not change
         # 3) select an action from the list
@@ -130,7 +131,6 @@ def generate_play_trace_turtle(map, prob, rep, actions_list, render=False):
     moves = [0,1,2,3]
 
     for num_tc_action in range(20): #can be changed if we want the amount of changed tiles to increase/decrease
-        print(row_idx, col_idx)
         new_map = old_map.copy()
         transition_info_at_step = [None, old_map, None, None]
         actions = actions_list.copy()
@@ -147,17 +147,17 @@ def generate_play_trace_turtle(map, prob, rep, actions_list, render=False):
         change_dir = False
         while(change_dir == False): # while loop implemented so there can be a turtle move in place
             next_move = random.randint(0, 3)
-            if(next_move == 0 and row_idx != 0): # move left
-                row_idx -= 1
-                change_dir = True
-            elif(next_move == 1 and row_idx != num_cols): # move right
-                row_idx += 1
-                change_dir = True
-            elif(next_move == 2 and col_idx != 0): # move up
+            if(next_move == 0 and col_idx != 0): # move left
                 col_idx -= 1
                 change_dir = True
-            elif(next_move == 3 and col_idx != num_rows): # move down
+            elif(next_move == 1 and col_idx != num_cols): # move right
                 col_idx += 1
+                change_dir = True
+            elif(next_move == 2 and row_idx != 0): # move up
+                row_idx -= 1
+                change_dir = True
+            elif(next_move == 3 and row_idx != num_rows): # move down
+                row_idx += 1
                 change_dir = True
 
         # 4) update the map with the new tile type
@@ -165,6 +165,7 @@ def generate_play_trace_turtle(map, prob, rep, actions_list, render=False):
         transition_info_at_step[0] = new_map
         #play_trace.append(transition_info_at_step)
         play_trace.insert(0, transition_info_at_step)
+        # print(transition_info_at_step)
 
         old_map = new_map
 
@@ -313,7 +314,7 @@ def main():
                     play_trace = generate_play_trace_narrow(map, prob, rep, actions_list, render=render)
                     numpy_dict = get_numpy_dict_from_play_trace_narrow(play_trace, prob, rep)
                     # np.savez(f'expert_trajectories/wide/expert_zelda_complete', **complete_numpy_dict)
-                    np.savez(f'expert_trajectories/narrow/expert_zelda_{rep_as_str}_{idx}_{idx_j}', **numpy_dict)
+                    np.savez(f'expert_trajectories/narrow/expert_zelda_complete', **numpy_dict)
         elif rep_as_str == 'turtle':
             for idx in range(50):
                 filename = FILENAME_TEMPLATE.format(idx)
@@ -322,7 +323,7 @@ def main():
                     play_trace = generate_play_trace_turtle(map, prob, rep, actions_list, render=render)
                     numpy_dict = get_numpy_dict_from_play_trace_turtle(play_trace, prob, rep)
                     # np.savez(f'expert_trajectories/wide/expert_zelda_complete', **complete_numpy_dict)
-                    np.savez(f'expert_trajectories/turtle/expert_zelda_{rep_as_str}_{idx}_{idx_j}', **numpy_dict)
+                    np.savez(f'expert_trajectories/turtle/expert_zelda_complete', **numpy_dict)
         else:
             sys.exit(1)
     else:
@@ -337,14 +338,14 @@ def main():
             for idx in range(num_pods):
                 map = to_2d_array_level(filename)
                 play_trace = generate_play_trace_narrow(map, prob, rep, actions_list, render=render)
-                numpy_dict = get_numpy_dict_from_play_trace_wide(play_trace, prob, rep)
+                numpy_dict = get_numpy_dict_from_play_trace_narrow(play_trace, prob, rep)
                 # np.savez(f'expert_trajectories/wide/expert_zelda_{rep_as_str}_{idx}_{idx}', **numpy_dict)
                 np.savez(f'expert_trajectories/narrow/expert_zelda_{rep_as_str}_{idx}_{idx}', **numpy_dict)
         elif rep_as_str == 'turtle':
             for idx in range(num_pods):
                 map = to_2d_array_level(filename)
                 play_trace = generate_play_trace_turtle(map, prob, rep, actions_list, render=render)
-                numpy_dict = get_numpy_dict_from_play_trace_wide(play_trace, prob, rep)
+                numpy_dict = get_numpy_dict_from_play_trace_turtle(play_trace, prob, rep)
                 # np.savez(f'expert_trajectories/wide/expert_zelda_{rep_as_str}_{idx}_{idx}', **numpy_dict)
                 np.savez(f'expert_trajectories/turtle/expert_zelda_{rep_as_str}_{idx}_{idx}', **numpy_dict)
 
